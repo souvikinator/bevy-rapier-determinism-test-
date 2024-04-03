@@ -62,7 +62,7 @@ fn main() {
                 apply_velocity,
                 move_paddle,
                 check_for_collisions,
-                play_collision_sound,
+                // play_collision_sound,
             )
                 // `chain`ing systems together runs them in order
                 .chain(),
@@ -184,8 +184,8 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     // Sound
-    let ball_collision_sound = asset_server.load("sounds/breakout_collision.ogg");
-    commands.insert_resource(CollisionSound(ball_collision_sound));
+    // let ball_collision_sound = asset_server.load("sounds/breakout_collision.ogg");
+    // commands.insert_resource(CollisionSound(ball_collision_sound));
 
     // Paddle
     let paddle_y = BOTTOM_WALL + GAP_BETWEEN_PADDLE_AND_FLOOR;
@@ -263,11 +263,11 @@ fn move_paddle(
     let left_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + PADDLE_SIZE.x / 2.0 + PADDLE_PADDING;
     let right_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - PADDLE_SIZE.x / 2.0 - PADDLE_PADDING;
 
-    let upper_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + PADDLE_SIZE.y / 2.0 + PADDLE_PADDING;
-    let lower_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - PADDLE_SIZE.y / 2.0 - PADDLE_PADDING;
+    let upper_bound = TOP_WALL + WALL_THICKNESS / 2.0 + PADDLE_SIZE.y / 2.0 + PADDLE_PADDING;
+    let lower_bound = BOTTOM_WALL - WALL_THICKNESS / 2.0 - PADDLE_SIZE.y / 2.0 - PADDLE_PADDING;
 
     paddle_transform.translation.x = new_paddle_position_x.clamp(left_bound, right_bound);
-    paddle_transform.translation.y = new_paddle_position_y.clamp(left_bound, right_bound);
+    paddle_transform.translation.y = new_paddle_position_y.clamp(lower_bound, upper_bound);
 }
 
 fn apply_velocity(mut query: Query<(&mut Transform, &Velocity)>, time: Res<Time>) {
@@ -336,22 +336,22 @@ fn check_for_collisions(
     }
 }
 
-fn play_collision_sound(
-    mut commands: Commands,
-    mut collision_events: EventReader<CollisionEvent>,
-    sound: Res<CollisionSound>,
-) {
-    // Play a sound once per frame if a collision occurred.
-    if !collision_events.is_empty() {
-        // This prevents events staying active on the next frame.
-        collision_events.clear();
-        commands.spawn(AudioBundle {
-            source: sound.clone(),
-            // auto-despawn the entity when playback finishes
-            settings: PlaybackSettings::DESPAWN,
-        });
-    }
-}
+// fn play_collision_sound(
+//     mut commands: Commands,
+//     mut collision_events: EventReader<CollisionEvent>,
+//     sound: Res<CollisionSound>,
+// ) {
+//     // Play a sound once per frame if a collision occurred.
+//     if !collision_events.is_empty() {
+//         // This prevents events staying active on the next frame.
+//         collision_events.clear();
+//         commands.spawn(AudioBundle {
+//             source: sound.clone(),
+//             // auto-despawn the entity when playback finishes
+//             settings: PlaybackSettings::DESPAWN,
+//         });
+//     }
+// }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum Collision {
