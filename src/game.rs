@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::*;
 
-fn main() {
+pub fn bevy_main() {
     App::new()
         .init_resource::<BallCoords>()
         .insert_resource(ClearColor(Color::rgb_u8(111, 182, 246)))
