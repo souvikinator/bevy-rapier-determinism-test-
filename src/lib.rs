@@ -1,10 +1,34 @@
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::{NoUserData, RapierPhysicsPlugin};
-use game::{ball_position, text_update_system, BallCoords};
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+use bevy::ecs::{
+    entity::Entity,
+    schedule::IntoSystemConfigs,
+    system::{Commands, Query, SystemState},
+};
+#[cfg(any(target_os = "android", target_os = "ios"))]
+use bevy::input::{keyboard::KeyboardInput, ButtonState};
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+mod app_view;
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+mod ffi;
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub use ffi::*;
+
+#[cfg(target_os = "android")]
+mod android_asset_io;
 
 mod game;
 
-pub fn init_bevy_game() {
+use game::*;
+
+#[allow(unused_variables)]
+pub fn init_bevy_game(
+    #[cfg(target_os = "android")] android_asset_manager: android_asset_io::AndroidAssetManager,
+) -> App {
     let mut bevy_app = App::new();
 
     #[allow(unused_mut)]
@@ -33,6 +57,8 @@ pub fn init_bevy_game() {
 
     #[cfg(any(target_os = "android", target_os = "ios"))]
     {
+        use bevy::winit::WinitPlugin;
+
         default_plugins = default_plugins
             .disable::<WinitPlugin>()
             .set(WindowPlugin::default());

@@ -2,7 +2,6 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
     sprite::MaterialMesh2dBundle,
-    window::{PresentMode, PrimaryWindow},
 };
 use bevy_rapier2d::prelude::*;
 
@@ -33,7 +32,9 @@ pub fn setup(
     commands
         .spawn(Collider::cuboid(500.0, 100.0))
         .insert(MaterialMesh2dBundle {
-            mesh: meshes.add(Rectangle::new(1000., 200.)).into(),
+            mesh: meshes
+                .add(shape::Quad::new(Vec2::new(1000., 200.)).into())
+                .into(),
             material: materials.add(ColorMaterial::from(Color::rgb(0.5, 0.5, 0.5))),
             transform: Transform::from_xyz(0.0, -250.0, 0.0),
             ..default()
@@ -44,7 +45,9 @@ pub fn setup(
         .insert(Collider::cuboid(10.0, 10.0))
         .insert(Restitution::coefficient(0.7))
         .insert(MaterialMesh2dBundle {
-            mesh: meshes.add(Rectangle::new(20., 20.)).into(),
+            mesh: meshes
+                .add(shape::Quad::new(Vec2::new(20., 20.)).into())
+                .into(),
             material: materials.add(ColorMaterial::from(Color::RED)),
             transform: Transform::from_xyz(0.0, 400.0, 0.0),
             ..default()
@@ -86,7 +89,7 @@ pub fn text_update_system(
     mut query: Query<&mut Text, With<BallPositionText>>,
 ) {
     for mut text in &mut query {
-        if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
+        if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
             if let Some(value) = fps.smoothed() {
                 text.sections[1].value = format!("{value:.2}");
             }
