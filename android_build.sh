@@ -2,6 +2,20 @@
 
 RELEASE_MODE=${1}
 LIB_FOLDER="debug"
+TARGET_FOLDER="Android/app/src/main"
+
+# move asset folder to Android src/main
+if [ -d "${TARGET_FOLDER}/assets" ]; then
+    rm -rf "${TARGET_FOLDER}/assets"
+fi
+
+if [ -d "assets" ]; then
+    echo "Copying assets folder to Android src/main"
+    cp -r assets "${TARGET_FOLDER}/assets"
+else
+    echo "No assets folder found"
+    exit 1
+fi
 
 # build to Android target
 if [ "${RELEASE_MODE}" = "--release" ]; then
