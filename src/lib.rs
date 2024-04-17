@@ -75,7 +75,57 @@ pub fn init_bevy_game() {
         .add_plugins(default_plugins)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_systems(Startup, setup)
-        .add_systems(Update, (text_update_system, ball_position));
+        .add_systems(Update, (text_update_system, ball_position).chain());
+
+    // In this scenario, need to call the setup() of the plugins that have been registered
+    // in the App manually.
+    // https://github.com/bevyengine/bevy/issues/7576
+    // bevy 0.11 changed: https://github.com/bevyengine/bevy/pull/8336
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    {
+        use bevy::app::PluginsState;
+        while bevy_app.plugins_state() != PluginsState::Ready {
+            bevy::tasks::tick_global_task_pools_on_main_thread();
+        }
+        bevy_app.finish();
+        bevy_app.cleanup();
+        bevy_app.update();
+    }
 
     bevy_app
+}
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub(crate) fn change_input(app: &mut App, key_code: KeyCode, state: ButtonState) {
+    let mut windows_system_state: SystemState<Query<(Entity, &mut Window)>> =
+        SystemState::from_world(&mut app.world);
+    let windows = windows_system_state.get_mut(&mut app.world);
+    if let Ok((entity, _)) = windows.get_single() {
+        let input = KeyboardInput {
+            scan_code: if key_code == KeyCode::Left { 123 } else { 124 },
+            state,
+            key_code: Some(key_code),
+            window: entity,
+        };
+        app.world.cell().send_event(input);
+    }
+}
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+#[allow(clippy::type_complexity)]
+pub(crate) fn close_bevy_window(mut app: Box<App>) {
+    use bevy::app::AppExit;
+    let mut windows_state: SystemState<(
+        Commands,
+        Query<(Entity, &mut Window)>,
+        EventWriter<AppExit>,
+    )> = SystemState::from_world(&mut app.world);
+    let (mut commands, windows, mut app_exit_events) = windows_state.get_mut(&mut app.world);
+    for (window, _focus) in windows.iter() {
+        commands.entity(window).despawn();
+    }
+    app_exit_events.send(AppExit);
+    windows_state.apply(&mut app.world);
+
+    app.update();
 }
