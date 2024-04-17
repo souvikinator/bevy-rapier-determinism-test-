@@ -6,45 +6,19 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::*;
 
-pub fn bevy_main() {
-    App::new()
-        .init_resource::<BallCoords>()
-        .insert_resource(ClearColor(Color::rgb_u8(111, 182, 246)))
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "Jovial Remix!".into(),
-                name: Some("bevy.app".into()),
-                resolution: (720., 1280.).into(),
-                present_mode: PresentMode::AutoVsync,
-                // Tells wasm not to override default event handling, like F5, Ctrl+R etc.
-                prevent_default_event_handling: false,
-                enabled_buttons: bevy::window::EnabledButtons {
-                    maximize: false,
-                    ..Default::default()
-                },
-                ..default()
-            }),
-            ..default()
-        }))
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_systems(Startup, setup)
-        .add_systems(Update, (text_update_system, ball_position))
-        .run();
-}
-
 #[derive(Resource, Default)]
-struct BallCoords(Vec2);
+pub struct BallCoords(Vec2);
 
 #[derive(Component)]
-struct MainCamera;
+pub struct MainCamera;
 
 #[derive(Component)]
-struct BallPositionText;
+pub struct BallPositionText;
 
 #[derive(Component)]
-struct Ball;
+pub struct Ball;
 
-fn setup(
+pub fn setup(
     mut commands: Commands,
     mut rapier_config: ResMut<RapierConfiguration>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -107,7 +81,7 @@ fn setup(
     commands.spawn((Camera2dBundle::default(), MainCamera));
 }
 
-fn text_update_system(
+pub fn text_update_system(
     diagnostics: Res<DiagnosticsStore>,
     mut query: Query<&mut Text, With<BallPositionText>>,
 ) {
@@ -120,7 +94,7 @@ fn text_update_system(
     }
 }
 
-fn ball_position(
+pub fn ball_position(
     mut mycoords: ResMut<BallCoords>,
     q_ball: Query<&Transform, With<Ball>>,
     mut q_label: Query<&mut Text, With<BallPositionText>>,
