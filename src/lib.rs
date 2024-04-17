@@ -98,10 +98,23 @@ pub fn init_bevy_game(
     bevy_app
         .init_resource::<BallCoords>()
         .insert_resource(ClearColor(Color::rgb_u8(111, 182, 246)))
-        .add_plugins(default_plugins)
+        .add_plugins(default_plugins);
+
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    bevy_app.add_plugins(app_view::AppViewPlugin);
+
+    bevy_app
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_systems(Startup, setup)
-        .add_systems(Update, (text_update_system, ball_position).chain());
+        .add_systems(
+            Update,
+            (
+                text_update_system,
+                ball_position,
+                bevy::window::close_on_esc,
+            )
+                .chain(),
+        );
 
     // In this scenario, need to call the setup() of the plugins that have been registered
     // in the App manually.
