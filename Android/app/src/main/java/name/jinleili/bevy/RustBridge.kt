@@ -5,8 +5,20 @@ import android.content.Context
 import android.content.res.AssetManager
 
 class RustBridge {
-    init {
-        System.loadLibrary("bevy_in_app")
+//    companion object {
+//        public var name: String = "bevy_in_app";
+//
+//        public fun initialize() {
+//            System.loadLibrary(name)
+//        }
+//    }
+
+//    init {
+//        System.loadLibrary(name)
+//    }
+
+    constructor(name: String) {
+        System.loadLibrary(name)
     }
 
     external fun init_ndk_context(ctx: Context)

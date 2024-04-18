@@ -23,12 +23,17 @@ pub fn android_main(_android_app: bevy::winit::AndroidApp) {
 #[no_mangle]
 #[jni_fn("name.jinleili.bevy.RustBridge")]
 pub fn init_ndk_context(env: JNIEnv, _: jobject, context: jobject) {
+    log::info!("Rust: enter init ndk context");
     log_panics::init();
     android_logger::init_once(Config::default().with_max_level(LevelFilter::Info));
+    log::info!("Rust: logger set!");
     let java_vm = env.get_java_vm().unwrap();
+    log::info!("Rust: Initializing Android Context");
+    log::info!("Rust: java_vm: {:?}", java_vm);
     unsafe {
         ndk_context::initialize_android_context(java_vm.get_java_vm_pointer() as _, context as _);
     }
+    log::info!("Rust: init_ndk_context done!");
 }
 
 #[no_mangle]
